@@ -330,7 +330,16 @@ function playPlaceholderTone(sound){
   }, sound.tone.dur * 1000);
 }
 
+function unlockAudioContext(){
+  if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if(audioCtx.state === 'suspended') audioCtx.resume();
+}
+
 function triggerSound(sound){
+  // Unlock audio synchronously inside the click handler so browser
+  // autoplay policies count this as a real user gesture.
+  unlockAudioContext();
+
   // toggle off if same pad tapped again
   if(activePadId === sound.id){
     stopCurrent();
