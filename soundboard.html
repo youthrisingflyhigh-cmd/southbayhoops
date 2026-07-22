@@ -200,7 +200,9 @@
     // Sound mapping - organize sounds into tabs
     const soundMap = {
       walkouts: [
-        { name: 'Walkout 1', file: 'walkout-1' }
+        { name: 'Walkout 1', file: 'walkout-1', ext: '.wav' },
+        { name: 'Walkout 2', file: 'walkout-2', ext: '.wav' },
+        { name: 'Walkout 3', file: 'walkout-3', ext: '.wav' }
       ],
       hype: [
         // Add hype sounds here when available
@@ -239,19 +241,13 @@
 
     // Play sound
     function playSound(sound) {
-      const audioPath = `sounds/${sound.file}.mp3`;
+      const audioPath = `sounds/${sound.file}${sound.ext}`;
       
       const audio = new Audio(audioPath);
       audio.volume = 0.8;
       audio.play().catch(err => {
         console.error('Error playing sound:', err);
-        // Try .wav if .mp3 fails
-        const audio2 = new Audio(`sounds/${sound.file}.wav`);
-        audio2.volume = 0.8;
-        audio2.play().catch(err2 => {
-          console.error('Error playing .wav:', err2);
-          nowPlayingElement.textContent = `Error: ${sound.name} not found`;
-        });
+        nowPlayingElement.textContent = `Error: ${sound.name} not found`;
       });
 
       // Visual feedback
