@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Southbay Hoops Soundboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #C9A84C;
+      font-size: 12px;
+      letter-spacing: 1px;
+    }
+
+    /* Tab Navigation */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #444;
+      padding-bottom: 12px;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      transition: all 0.3s;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -14px;
+    }
+
+    .tab-btn:hover {
+      color: #C9A84C;
+    }
+
+    .tab-btn.active {
+      color: #C9A84C;
+      border-bottom-color: #C9A84C;
+    }
+
+    /* Soundboard Grid */
+    .soundboard {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .sound-pad {
+      background: linear-gradient(135deg, #333 0%, #1a1a1a 100%);
+      border: 2px solid #555;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      text-align: center;
+      color: #aaa;
+    }
+
+    .sound-pad:hover {
+      background: linear-gradient(135deg, #444 0%, #222 100%);
+      border-color: #777;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(201, 168, 76, 0.2);
+    }
+
+    .sound-pad:active {
+      transform: translateY(1px);
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .sound-pad.playing {
+      background: linear-gradient(135deg, #C9A84C 0%, #FF4500 100%);
+      border-color: #FF4500;
+      color: #000;
+      box-shadow: 0 0 20px rgba(201, 168, 76, 0.8);
+    }
+
+    .sound-name {
+      font-size: 11px;
+      margin-top: 6px;
+      opacity: 0.8;
+      word-break: break-word;
+    }
+
+    .icon {
+      font-size: 20px;
+      margin-bottom: 4px;
+    }
+
+    /* Info Panel */
+    .info-panel {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid #444;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .info-panel p {
+      margin: 6px 0;
+    }
+
+    .info-panel strong {
+      color: #C9A84C;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .soundboard {
+        grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      }
+
+      .sound-pad {
+        min-height: 80px;
+        padding: 12px;
+      }
+
+      .header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎵 Southbay Hoops</h1>
+      <p>Soundboard</p>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('walkouts')">🚶 Walkouts</button>
+      <button class="tab-btn" onclick="switchTab('hype')">🔥 Hype & Crowd</button>
+      <button class="tab-btn" onclick="switchTab('buildup')">⚡ Build-Up</button>
+    </div>
+
+    <!-- Soundboard Grids -->
+    <div id="walkouts" class="soundboard" style="display: grid;"></div>
+    <div id="hype" class="soundboard" style="display: none;"></div>
+    <div id="buildup" class="soundboard" style="display: none;"></div>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+      <p><strong>Now Playing:</strong> <span id="now-playing">None</span></p>
+      <p>Click any pad to play. Courtside use only.</p>
+    </div>
+  </div>
+
+  <script>
+    // Sound mapping - organize sounds into tabs
+    const soundMap = {
+      walkouts: [
+        { name: 'Walkout 1', file: 'walkout-1' }
+      ],
+      hype: [
+        // Add hype sounds here when available
+      ],
+      buildup: [
+        // Add build-up sounds here when available
+      ]
+    };
+
+    let currentTab = 'walkouts';
+    let nowPlayingElement = document.getElementById('now-playing');
+
+    // Initialize soundboard
+    function initSoundboard() {
+      Object.keys(soundMap).forEach(tab => {
+        const grid = document.getElementById(tab);
+        grid.innerHTML = '';
+
+        if (soundMap[tab].length === 0) {
+          grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #666; padding: 40px;">No sounds available</p>';
+          return;
+        }
+
+        soundMap[tab].forEach((sound, idx) => {
+          const pad = document.createElement('div');
+          pad.className = 'sound-pad';
+          pad.innerHTML = `
+            <div class="icon">🔊</div>
+            <div class="sound-name">${sound.name}</div>
+          `;
+          pad.onclick = () => playSound(sound);
+          grid.appendChild(pad);
+        });
+      });
+    }
+
+    // Play sound
+    function playSound(sound) {
+      const audioPath = `sounds/${sound.file}.mp3`;
+      
+      const audio = new Audio(audioPath);
+      audio.volume = 0.8;
+      audio.play().catch(err => {
+        console.error('Error playing sound:', err);
+        // Try .wav if .mp3 fails
+        const audio2 = new Audio(`sounds/${sound.file}.wav`);
+        audio2.volume = 0.8;
+        audio2.play().catch(err2 => {
+          console.error('Error playing .wav:', err2);
+          nowPlayingElement.textContent = `Error: ${sound.name} not found`;
+        });
+      });
+
+      // Visual feedback
+      const allPads = document.querySelectorAll('.sound-pad');
+      allPads.forEach(pad => pad.classList.remove('playing'));
+      event.target.closest('.sound-pad').classList.add('playing');
+
+      // Update display
+      nowPlayingElement.textContent = sound.name;
+
+      // Remove playing state after sound ends
+      setTimeout(() => {
+        event.target.closest('.sound-pad').classList.remove('playing');
+      }, 3000);
+    }
+
+    // Switch tabs
+    function switchTab(tabName) {
+      currentTab = tabName;
+
+      // Hide all tabs
+      document.getElementById('walkouts').style.display = 'none';
+      document.getElementById('hype').style.display = 'none';
+      document.getElementById('buildup').style.display = 'none';
+
+      // Show selected tab
+      document.getElementById(tabName).style.display = 'grid';
+
+      // Update active tab button
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+    }
+
+    // Initialize on load
+    window.addEventListener('load', initSoundboard);
+  </script>
+</body>
+</html>
